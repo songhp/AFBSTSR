@@ -40,48 +40,7 @@ def main():
     model = define_model(args)
     model.eval()
     model = model.to(device)
-    from thop import profile
-
-    
-    real_params = sum(p.numel() for p in model.parameters())
-    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-    dummy_input = torch.randn(1, 3, 320, 180).to(device)
-
-    with torch.no_grad():
-        macs, thop_params = profile(model, inputs=(dummy_input,), verbose=False)
-
-    
-    real_params = sum(p.numel() for p in model.parameters())
-
-    
-    _, _, H, W = dummy_input.shape
-
-    
-    dim = 60
-    adim = dim // 2  
-    wsize = 16 
-    groups = 5
-    num = 4
-
-    
-    spatial_blocks_per_group = (num + 1) // 2
-    num_spatial_blocks = groups * spatial_blocks_per_group
-
-    attn_macs = (
-            2 * H * W * (wsize ** 2) * adim * num_spatial_blocks
-    )
-
-    total_macs = macs + attn_macs
-
-    print("========== Complexity ==========")
-    print(f"Input size:        {H} x {W}")
-    print(f"Real Params:       {real_params / 1e3:.2f} K")
-    print(f"THOP Params:       {thop_params / 1e6:.4f} M")
-    print(f"THOP MACs:         {macs / 1e9:.2f} G")
-    print(f"Attention MACs:    {attn_macs / 1e9:.2f} G")
-    print(f"Total MACs/FLOPs:  {total_macs / 1e9:.2f} G")
-    print("================================")
+   
     dataset_list = ['Set5','Set14','B100','Urban100','Manga109'] #'Set5','Set14','B100','Urban100','manga109'
 
     for i in range(len(dataset_list)):
